@@ -41,7 +41,7 @@ def get_all(request):
 
 # Same specification as get_all, except the results should be paginated
 def get_page(request, page):
-
+    # James
     return 0
 
 @require_http_methods(["POST"])
