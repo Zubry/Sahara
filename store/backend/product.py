@@ -49,7 +49,7 @@ def get_page(request, page):
 # Users should be able to filter by price and manufacturer
 # Only in-stock products should be shown
 def search(request, page):
-
+#Daniel
     return 0
 
 @require_http_methods(["POST"])
