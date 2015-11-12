@@ -4,17 +4,29 @@ from django.db.models.base import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
 from django.core import serializers
 
-from store.models import User, Supplier, Orders, Supplies
+from store.models import User, Supplier, Orders, Supplies, Product
 
 import json
 
-@require_http_methods(["GET"])
+def get_my_account(request):
+    if request.session['user_id']:
+        return User.objects.get(id=request.session['user_id'])
+
+def is_authenticated(request):
+    return request.session['authenticated']
+
+def is_staff(request):
+    u = User.objects.get(id=request.session['user_id'])
+    return u.is_staff
+
+STATUS_GOOD = JsonResponse({'status': 'good'})
+NO_ACTIVE_SESSION = JsonResponse({'status': 'bad', 'message': 'No active session'})
+
 # Gets the product at the specified ID
 def get(request, id):
 
     return 0
 
-@require_http_methods(["GET"])
 # Returns a list of all products, with the following information:
 #   * Name
 #   * Description
@@ -24,10 +36,9 @@ def get(request, id):
 # Inactive items should not be included by default
 # Results should be sortable on the server
 def get_all(request):
+    p = Product.objects.all().values('name', 'description', 'price', 'stock_quantity')
+    return JsonResponse({'status': 'good', 'data': json.loads(json.dumps(list(p)))})
 
-    return 0
-
-@require_http_methods(["GET"])
 # Same specification as get_all, except the results should be paginated
 def get_page(request, page):
 
@@ -48,8 +59,21 @@ def search(request, page):
 # All other attributes are optional
 # Stock defaults to 0, active defaults to True
 def add(request):
+    name = request.POST.get('name')
+    description = request.POST.get('description')
+    price = request.POST.get('price')
+    active = request.POST.get('active')
+    stock_quantity = request.POST.get('stock_quantity')
 
-    return 0
+    if active == None:
+        active = True
+
+    if is_authenticated(request) and is_staff(request):
+        p = Product(name=name, description=description, price=price, active=active, stock_quantity=stock_quantity)
+        p.save()
+        return STATUS_GOOD
+    else:
+        return NO_ACTIVE_SESSION
 
 @require_http_methods(["POST"])
 # Removes a product from the database

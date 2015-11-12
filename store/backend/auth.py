@@ -16,7 +16,6 @@ def logout(request):
     return JsonResponse({'status': 'good'})
 
 @require_http_methods(["POST"])
-
 def login(request):
     # Get the user with the specified email and check their password against the specified password
     email = request.POST.get("email")
