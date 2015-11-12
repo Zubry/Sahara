@@ -47,3 +47,5 @@ Ends the active user's session.
 #### Request
 
     GET to /api/auth/logout/
+
+## Products
