@@ -1,0 +1,87 @@
+<div class="add-vertical-spacing"></div>
+<div class="container" ng-show="profile.error">
+  <div class="bg-danger" style="padding: 1em;">
+    <p class="lead text-center"><strong>Error:</strong> {{profile.error}} <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span></p>
+  </div>
+</div>
+
+<div>
+  <div class="container">
+    <h2 class="text-center">My Account</h2>
+    <table class="table table-striped">
+      <tr>
+        <td class="width-50">
+          <label for="name">My name</label>
+        </td>
+        <td class="width-50">
+          <div class="input-group">
+            <input type="text" class="form-control" id="name" ng-model="profile.name">
+            <div class="input-group-addon pointer" ng-click="profile.update_name()"><span class="glyphicon glyphicon-floppy-save text-primary" aria-hidden="true"></span></div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="width-50">
+          <label for="email">My email</label>
+        </td>
+        <td class="width-50">
+          <div class="input-group">
+            <input type="text" class="form-control" id="email" ng-model="profile.email">
+            <div class="input-group-addon pointer" ng-click="profile.update_email()"><span class="glyphicon glyphicon-floppy-save text-primary" aria-hidden="true"></span></div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="width-50">
+          <label for="address">My address</label>
+        </td>
+        <td class="width-50">
+          <div class="input-group">
+            <input type="text" class="form-control" id="email" ng-model="profile.address">
+            <div class="input-group-addon pointer" ng-click="profile.update_address()"><span class="glyphicon glyphicon-floppy-save text-primary" aria-hidden="true"></span></div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="width-50">
+          <label for="password">My password</label>
+        </td>
+        <td class="width-50">
+          <div class="input-group">
+            <input type="password" class="form-control" id="password" placeholder="New password" ng-model="profile.password">
+            <div class="input-group-addon pointer" ng-click="profile.update_password()"><span class="glyphicon glyphicon-floppy-save text-primary" aria-hidden="true"></span></div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="width-50">
+          <label for="delete">Delete my account (cannot be undone)</label>
+        </td>
+        <td class="width-50">
+          <div class="input-group">
+            <button type="button" class="btn btn-danger" ng-click="profile.delete_account()">Delete</button>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <hr class="large">
+    <button class="btn btn-warning center-block" ng-click="profile.logout()">Log out <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span></button>
+    <hr class="large">
+  </div>
+</div>
+
+<style>
+  .width-50 {
+    width:50%;
+  }
+
+  .pointer {
+    cursor: pointer;
+    transition: .3s;
+  }
+
+  .pointer:hover>span {
+    color: #2b2b2b;
+    transition: .3s;
+  }
+</style>

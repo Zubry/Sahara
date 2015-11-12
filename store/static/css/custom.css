@@ -1,0 +1,38 @@
+.navbar{
+  background-color: rgba(33, 37, 43, .8);
+  color: #f5f5f5;
+}
+
+footer {
+  background-color: rgb(33, 37, 43);
+  color: #f5f5f5;
+}
+
+.custom-link-large {
+  color: #f5f5f5;
+  font-family: 'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  background-color: rgba(33, 37, 43, .7);
+  padding: 1.5em;
+  display: inline-block !important;
+  margin-top: 1.5em;
+  transition: .3s;
+}
+
+.custom-link-large:hover {
+  background-color: rgba(33, 37, 43, .9);
+  transition: .3s;
+}
+
+html, body, div[ng-view] {
+  height: 100%;
+}
+
+.add-vertical-spacing {
+  margin-top: 4em;
+  width: 100%;
+}
+
+.intro-header {
+  height: 100%;
+  background-position: top;
+}
