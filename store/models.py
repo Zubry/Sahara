@@ -1,7 +1,7 @@
 from django.db import models
 
 class Product(models.Model):
-    active = models.BooleanField()
+    active = models.BooleanField(default=True)
     description = models.TextField(max_length=250)
     stock_quantity = models.IntegerField(default=0)
     price = models.BigIntegerField()

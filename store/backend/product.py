@@ -36,7 +36,7 @@ def get(request, id):
 # Inactive items should not be included by default
 # Results should be sortable on the server
 def get_all(request):
-    p = Product.objects.all().values('id', 'name', 'description', 'price', 'stock_quantity')
+    p = Product.objects.filter(active=True).values('id', 'name', 'description', 'price', 'stock_quantity')
     return JsonResponse({'status': 'good', 'data': json.loads(json.dumps(list(p)))})
 
 # Same specification as get_all, except the results should be paginated
@@ -65,11 +65,8 @@ def add(request):
     active = request.POST.get('active')
     stock_quantity = request.POST.get('stock_quantity')
 
-    if active == None:
-        active = True
-
     if is_authenticated(request) and is_staff(request):
-        p = Product(name=name, description=description, price=price, active=active, stock_quantity=stock_quantity)
+        p = Product(name=name, description=description, price=price, stock_quantity=stock_quantity)
         p.save()
         return STATUS_GOOD
     else:
