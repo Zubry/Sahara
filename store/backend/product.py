@@ -85,8 +85,9 @@ def remove(request):
         try:
             p = Product.objects.get(id=id)
             p.delete()
-        finally:
             return STATUS_GOOD
+        except:
+            return JsonResponse({'status': 'bad': 'message': 'Product does not exist'})
     else:
         return NO_ACTIVE_SESSION
 
