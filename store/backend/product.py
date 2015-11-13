@@ -78,13 +78,16 @@ def add(request):
 def remove(request):
     id = request.POST.get('id')
 
-    if is_authenticated(request) and is_staff(request) and id:
+    if 'id' not in request.POST or id == '':
+        return JsonResponse({'status': 'bad', 'message': 'No specified product'})
+
+    if is_authenticated(request) and is_staff(request):
         try:
             p = Product.objects.get(id=id)
             p.delete()
             return STATUS_GOOD
-        except:
-            return JsonResponse({'status': 'bad': 'message': 'Product does not exist'})
+        except Exception:
+            return JsonResponse({'status': 'bad', 'message': 'Product does not exist'})
     else:
         return NO_ACTIVE_SESSION
 
@@ -93,8 +96,34 @@ def remove(request):
 # May only be used by staff members
 # All unspecified attributes are left untouched
 def update(request):
+    id = request.POST.get('id')
 
-    return 0
+    if 'id' not in request.POST or id == '':
+        return JsonResponse({'status': 'bad', 'message': 'No specified product'})
+
+    if is_authenticated(request) and is_staff(request):
+        try:
+            p = Product.objects.get(id=id)
+
+            if 'name' in request.POST and request.POST.get('name') != '':
+                p.name = request.POST.get('name')
+            if 'description' in request.POST and request.POST.get('description') != '':
+                p.description = request.POST.get('description')
+            if 'price' in request.POST and request.POST.get('price') != '':
+                p.price = request.POST.get('price')
+            if 'stock_quantity' in request.POST and request.POST.get('stock_quantity') != '':
+                p.stock_quantity = request.POST.get('stock_quantity')
+
+            p.save()
+
+            p = Product.objects.filter(id=id).values()
+
+            # Since id is unique, grabbing the 0th item in the list forces the json to just return an object, not an array with one object
+            return JsonResponse({'status': 'good', 'data': json.loads(json.dumps(list(p)[0]))})
+        except Exception, e:
+            return JsonResponse({'status': 'bad', 'message': str(e)})
+    else:
+        return NO_ACTIVE_SESSION
 
 @require_http_methods(["POST"])
 # Adds the specified item to the signed-in user's active cart
