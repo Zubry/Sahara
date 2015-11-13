@@ -36,7 +36,7 @@ def get(request, id):
 # Inactive items should not be included by default
 # Results should be sortable on the server
 def get_all(request):
-    p = Product.objects.all().values('name', 'description', 'price', 'stock_quantity')
+    p = Product.objects.all().values('id', 'name', 'description', 'price', 'stock_quantity')
     return JsonResponse({'status': 'good', 'data': json.loads(json.dumps(list(p)))})
 
 # Same specification as get_all, except the results should be paginated
@@ -79,8 +79,16 @@ def add(request):
 # Removes a product from the database
 # May only be used by staff members
 def remove(request):
+    id = request.POST.get('id')
 
-    return 0
+    if is_authenticated(request) and is_staff(request) and id:
+        try:
+            p = Product.objects.get(id=id)
+            p.delete()
+        finally:
+            return STATUS_GOOD
+    else:
+        return NO_ACTIVE_SESSION
 
 @require_http_methods(["POST"])
 # Updates an item in the database
