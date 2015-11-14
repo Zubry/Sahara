@@ -11,7 +11,6 @@ import json
 # Gets an order by its ID
 # May only be used by staff members
 def get_by_id(request, cart_id):
-
     return 0
 
 # Searches for an order

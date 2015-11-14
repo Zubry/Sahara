@@ -3,8 +3,9 @@ from django.http import JsonResponse
 from django.db.models.base import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
 from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 
-from store.models import User, Supplier, Orders, Supplies, Product
+from store.models import User, Supplier, Orders, Supplies, Product, Contains, Order
 
 import json
 
@@ -128,8 +129,41 @@ def update(request):
 @require_http_methods(["POST"])
 # Adds the specified item to the signed-in user's active cart
 def order(request):
+    id = request.POST.get('id')
+    quantity = request.POST.get('quantity')
 
-    return 0
+    if 'id' not in request.POST or id == '':
+        return JsonResponse({'status': 'bad', 'message': 'No specified product'})
+
+    if not is_authenticated(request):
+        return NO_ACTIVE_SESSION
+
+    me = get_my_account(request)
+
+    def get_active_cart(uid):
+        return Orders.objects.get(order__paid=False, user__id=uid).order
+
+    def create_cart(uid):
+        o = Order(paid=False)
+        o.save()
+        os = Orders(order_id=o.id, user_id=uid)
+        os.save()
+        return o
+
+    def add_to_cart(pid, quantity, cart):
+        c = Contains(quantity=quantity, order=cart, product_id=pid)
+        c.save()
+
+
+    o = None
+    try:
+        o = get_active_cart(me.id)
+        add_to_cart(id, quantity, o)
+    except Exception:
+        o = create_cart(me.id)
+        add_to_cart(id, quantity, o)
+
+    return JsonResponse({'status': 'good'})
 
 @require_http_methods(["POST"])
 # Activates a product
