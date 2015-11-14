@@ -126,8 +126,6 @@ def add_item(request):
         c = Contains(quantity=quantity, order=cart, product_id=pid)
         c.save()
 
-
-    o = None
     try:
         o = get_active_cart(me.id)
         add_to_cart(id, quantity, o)
@@ -191,8 +189,16 @@ def clear(request):
 # Mark the active user's active cart as paid (inactive)
 @require_http_methods(["POST"])
 def checkout(request):
+    if not is_authenticated(request):
+        return NO_ACTIVE_SESSION
 
-    return 0
+    me = get_my_account(request)
+
+    def get_active_cart(uid):
+        return Orders.objects.get(order__paid=False, user__id=uid)
+
+    o = get_active_cart(me.id)
+    return JsonResponse({'val': o.id}, safe=False)
 
 # Adds an item to the specified cart
 # May only be used by staff members
@@ -214,6 +220,7 @@ def remove_item_by_id(request, cart_id):
 def update_item_by_id(request, cart_id):
 
     return 0
+
 # Clear a specified cart
 # May only be used by staff members
 @require_http_methods(["POST"])
