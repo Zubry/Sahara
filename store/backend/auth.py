@@ -50,7 +50,7 @@ def register(request):
             'name': u.name,
             'staff': u.is_staff
         }})
-    except Exception:
+    except Exception, e:
         return JsonResponse({'status': 'bad', 'message': 'Email is already registered'})
 
 

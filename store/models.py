@@ -8,7 +8,7 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
 
 class User(models.Model):
-    address = models.CharField(max_length=250)
+    address = models.CharField(max_length=250, null=True)
     name = models.CharField(max_length=100)
     password = models.CharField(max_length=60)
     email = models.CharField(max_length=320, unique=True)
