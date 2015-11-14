@@ -6,12 +6,68 @@ from django.core import serializers
 
 from store.models import User, Supplier, Order, Product, Orders, Supplies, Contains
 
+def get_my_account(request):
+    if request.session['user_id']:
+        return User.objects.get(id=request.session['user_id'])
+
+def is_authenticated(request):
+    return request.session['authenticated']
+
+def is_staff(request):
+    u = User.objects.get(id=request.session['user_id'])
+    return u.is_staff
+
+STATUS_GOOD = JsonResponse({'status': 'good'})
+NO_ACTIVE_SESSION = JsonResponse({'status': 'bad', 'message': 'No active session'})
+PERMISSIONS = JsonResponse({'status': 'bad', 'message': 'You do not have the required permissions to access this page'})
+
 import json
 
 # Gets an order by its ID
 # May only be used by staff members
 def get_by_id(request, cart_id):
-    return 0
+    if not is_authenticated(request):
+        return NO_ACTIVE_SESSION
+    if not is_staff(request):
+        return PERMISSIONS
+
+    c = Contains.objects.filter(order_id=cart_id).values('order__date', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
+    o = Orders.objects.filter(order_id=cart_id).values('user__address', 'user__name', 'user__email', 'user_id', 'order__date', 'order__paid')
+
+    products = []
+
+    if(list(o)):
+        o = list(o)[0]
+    else:
+        return JsonResponse({'status': 'bad', 'message': 'Order does not exist'})
+
+    try:
+        for product in c:
+            products.append({
+                'product_name': product['product__name'],
+                'product_description': product['product__description'],
+                'product_stock_quantity': product['product__stock_quantity'],
+                'product_price': product['product__price'],
+                'product_active': product['product__active'],
+                'product_quantity': product['quantity'],
+            })
+
+        return JsonResponse({
+            'status': 'good',
+            'user': {
+                'address': o['user__address'],
+                'email': o['user__email'],
+                'name': o['user__name'],
+                'id': o['user_id'],
+            },
+            'order': {
+                'paid': o['order__paid'],
+                'date': o['order__date'],
+            },
+            'products': products
+        })
+    except Exception, e:
+        return JsonResponse({'status': 'bad', 'message': 'Order does not exist'})
 
 # Searches for an order
 # May only be used by staff members
