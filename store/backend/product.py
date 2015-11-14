@@ -23,6 +23,7 @@ def is_staff(request):
 
 STATUS_GOOD = JsonResponse({'status': 'good'})
 NO_ACTIVE_SESSION = JsonResponse({'status': 'bad', 'message': 'No active session'})
+PERMISSIONS = JsonResponse({'status': 'bad', 'message': 'You do not have the required permissions to access this page'})
 
 # Gets the product at the specified ID
 def get(request, id):
@@ -198,5 +199,13 @@ def deactivate(request):
 # Establishes a supplier of a product
 # May only be used by staff members
 def supply(request):
+    supplier = request.POST.get('supplier')
+    product = request.POST.get('product')
+    if not is_authenticated(request):
+        return NO_ACTIVE_SESSION
 
-    return 0
+    if not is_staff(request):
+        return PERMISSIONS
+
+    s = Supplies(supplier_id=supplier, product_id=product)
+    return STATUS_GOOD
