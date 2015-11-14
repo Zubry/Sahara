@@ -4,6 +4,7 @@ from django.db.models.base import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Q
 
 from store.models import User, Supplier, Orders, Supplies, Product, Contains, Order
 
@@ -42,16 +43,29 @@ def get_all(request):
 
 # Same specification as get_all, except the results should be paginated
 def get_page(request, page):
-    # James
+
     return 0
 
 @require_http_methods(["POST"])
 # Same specification as get_all, and products should be searched by title and description
-# Users should be able to filter by price and manufacturer
+# Users should be able to filter by price
 # Only in-stock products should be shown
-def search(request, page):
-#Daniel
-    return 0
+def search(request):
+    query = request.POST.get('query')
+    s = request.POST.get('sort')
+
+    p = Product.objects.filter(active=True).filter(
+        Q(name__icontains=query) | Q(description__icontains=query)
+    )
+
+    if s == '-p':
+        p = p.order_by('-price')
+    elif s == 'p':
+        p = p.order_by('price')
+    else:
+        p = p.order_by('name')
+
+    return JsonResponse({'status': 'good', 'data': json.loads(json.dumps(list(p.values('id', 'name', 'description', 'price', 'stock_quantity'))))})
 
 @require_http_methods(["POST"])
 # Adds a product to the database

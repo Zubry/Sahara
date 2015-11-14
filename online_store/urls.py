@@ -61,7 +61,7 @@ urlpatterns = [
     url(r'^api/product/(.*)/activate/$', product.activate),
     url(r'^api/product/(.*)/deactivate/$', product.deactivate),
 
-    url(r'^api/products/search/(.*)/$', product.search),
+    url(r'^api/products/search/$', product.search),
     url(r'^api/products/(.*)/$', product.get_page),
     url(r'^api/products/$', product.get_all),
 
@@ -77,7 +77,7 @@ urlpatterns = [
     url(r'^api/order/(.*)/update-item/$', order.update_item_by_id),
     url(r'^api/order/(.*)/clear/$', order.clear_by_id),
 
-    url(r'^api/orders/search/(.*)/$', order.search),
+    url(r'^api/orders/search/$', order.search),
     url(r'^api/orders/$', order.get_all),
     url(r'^api/orders/(.*)/$', order.get_page),
 

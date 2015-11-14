@@ -131,7 +131,6 @@ def get(request):
 # Gets all orders
 # Should return information about the orderer, the order, and the products
 def get_all(request):
-
     return 0
 
 # Adds an item to the active user's active cart
