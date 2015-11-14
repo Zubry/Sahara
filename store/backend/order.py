@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.db.models.base import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
 from django.core import serializers
+from django.db.models import Sum
 
 from store.models import User, Supplier, Order, Product, Orders, Supplies, Contains
 
@@ -96,6 +97,7 @@ def get(request):
         return Orders.objects.get(order__paid=False, user__id=uid).order
 
     def get_products_in_cart(cart_id):
+        # Django makes it really, really, really difficult to do something like SELECT SUM(price * quantity) without interacting with raw SQL, which you're really not supposed to do. Fortunately, it's trivial to do with JavaScript on the client, and we don't expect there to be enough items in a cart for it to create a memory/processing power issue
         c = Contains.objects.filter(order_id=cart_id).values('order__date', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
 
         products = []
@@ -114,6 +116,7 @@ def get(request):
 
     try:
         o = get_active_cart(me.id)
+
         return JsonResponse({'status': 'good', 'data': {
             'products': get_products_in_cart(o.id),
             'date': o.date
