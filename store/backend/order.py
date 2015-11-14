@@ -98,10 +98,44 @@ def get_all(request):
 
 # Adds an item to the active user's active cart
 # If there is no active cart, create one and add the item to it
+# This is an alias of product.order
 @require_http_methods(["POST"])
 def add_item(request):
+    id = request.POST.get('id')
+    quantity = request.POST.get('quantity')
 
-    return 0
+    if 'id' not in request.POST or id == '':
+        return JsonResponse({'status': 'bad', 'message': 'No specified product'})
+
+    if not is_authenticated(request):
+        return NO_ACTIVE_SESSION
+
+    me = get_my_account(request)
+
+    def get_active_cart(uid):
+        return Orders.objects.get(order__paid=False, user__id=uid).order
+
+    def create_cart(uid):
+        o = Order(paid=False)
+        o.save()
+        os = Orders(order_id=o.id, user_id=uid)
+        os.save()
+        return o
+
+    def add_to_cart(pid, quantity, cart):
+        c = Contains(quantity=quantity, order=cart, product_id=pid)
+        c.save()
+
+
+    o = None
+    try:
+        o = get_active_cart(me.id)
+        add_to_cart(id, quantity, o)
+    except Exception:
+        o = create_cart(me.id)
+        add_to_cart(id, quantity, o)
+
+    return JsonResponse({'status': 'good'})
 
 # Removes an item from the active user's active cart
 # If there is more than one of the item in the cart, remove all of them
