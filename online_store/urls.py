@@ -68,7 +68,6 @@ urlpatterns = [
     # Order
     url(r'^api/order/add-item/$', order.add_item),
     url(r'^api/order/remove-item/$', order.remove_item),
-    url(r'^api/order/update-item/$', order.update_item),
     url(r'^api/order/clear/$', order.clear),
     url(r'^api/order/checkout/$', order.checkout),
 

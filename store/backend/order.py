@@ -143,8 +143,6 @@ def add_item(request):
 def remove_item(request):
     id = request.POST.get('id')
 
-    JsonResponse(list(id), safe=False)
-
     if 'id' not in request.POST or id == '':
         return JsonResponse({'status': 'bad', 'message': 'No specified product'})
 
@@ -154,7 +152,6 @@ def remove_item(request):
     me = get_my_account(request)
 
     def get_active_cart(uid):
-        # No idea why you gotta do all this here, but you don't have to do it in the other place
         return list(Orders.objects.filter(order__paid=False, user__id=uid).values())[0]['order_id']
 
     def remove_from_cart(product_id, cart_id):
@@ -169,17 +166,27 @@ def remove_item(request):
 
     return JsonResponse({'status': 'good'})
 
-# Update the active user's active cart's information, potentially including its quantity
-@require_http_methods(["POST"])
-def update_item(request):
-
-    return 0
-
 # Remove all items from the active user's active cart
 @require_http_methods(["POST"])
 def clear(request):
+    if not is_authenticated(request):
+        return NO_ACTIVE_SESSION
 
-    return 0
+    me = get_my_account(request)
+
+    def get_active_cart(uid):
+        return list(Orders.objects.filter(order__paid=False, user__id=uid).values())[0]['order_id']
+
+    def clear_cart(cart_id):
+        c = Contains.objects.filter(order_id=cart_id)
+        c.delete()
+
+    try:
+        o = get_active_cart(me.id)
+        clear_cart(o)
+        return STATUS_GOOD
+    except Exception, e:
+        return JsonResponse({'status': 'bad', 'message': 'Could not clear cart'})
 
 # Mark the active user's active cart as paid (inactive)
 @require_http_methods(["POST"])

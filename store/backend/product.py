@@ -185,3 +185,11 @@ def deactivate(request):
 def supply(request):
 
     return 0
+
+@require_http_methods(["POST"])
+# Deletes a product
+# May only be used by staff members
+# Will use assertions to ensure that the product hasn't been purchased in a month
+def remove_item(request):
+
+    return 0
