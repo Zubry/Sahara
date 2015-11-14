@@ -26,8 +26,8 @@ NO_ACTIVE_SESSION = JsonResponse({'status': 'bad', 'message': 'No active session
 
 # Gets the product at the specified ID
 def get(request, id):
-
-    return 0
+    p = Product.objects.filter(id=id).values('id', 'name', 'description', 'price', 'stock_quantity', 'active')
+    return JsonResponse({'status': 'good', 'data': json.loads(json.dumps(list(p)))})
 
 # Returns a list of all products, with the following information:
 #   * Name
