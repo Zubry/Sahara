@@ -185,15 +185,40 @@ def order(request):
 # Activates a product
 # May only be used by staff members
 def activate(request):
+    id = request.POST.get('id')
 
-    return 0
+    if 'id' not in request.POST or id == '':
+        return JsonResponse({'status': 'bad', 'message': 'No specified product'})
+    if is_authenticated(request) and is_staff(request):
+        try:
+            p = Product.objects.get(id=id)
+            p.active = True
+            p.save()
+            return JsonResponse({'status': 'good', 'message': 'Product activated'})
+        except Exception, e:
+            return JsonResponse({'status': 'bad', 'message': str(e)})
+    else:
+        return NO_ACTIVE_SESSION
 
 @require_http_methods(["POST"])
 # Deactivates a product
 # May only be used by staff members
 def deactivate(request):
+    id = request.POST.get('id')
 
-    return 0
+    if 'id' not in request.POST or id == '':
+        return JsonResponse({'status': 'bad', 'message': 'No specified product'})
+    if is_authenticated(request) and is_staff(request):
+        try:
+            p = Product.objects.get(id=id)
+            p.active = False
+            p.save()
+            return JsonResponse({'status': 'good', 'message': 'Product deactivated'})
+        except Exception:
+            return JsonResponse({'status': 'bad', 'message': 'Product failed to deactivate'})
+
+    else:
+        return NO_ACTIVE_SESSION
 
 @require_http_methods(["POST"])
 # Establishes a supplier of a product
