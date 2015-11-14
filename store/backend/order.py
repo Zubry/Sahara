@@ -141,8 +141,33 @@ def add_item(request):
 # If there is more than one of the item in the cart, remove all of them
 @require_http_methods(["POST"])
 def remove_item(request):
+    id = request.POST.get('id')
 
-    return 0
+    JsonResponse(list(id), safe=False)
+
+    if 'id' not in request.POST or id == '':
+        return JsonResponse({'status': 'bad', 'message': 'No specified product'})
+
+    if not is_authenticated(request):
+        return NO_ACTIVE_SESSION
+
+    me = get_my_account(request)
+
+    def get_active_cart(uid):
+        # No idea why you gotta do all this here, but you don't have to do it in the other place
+        return list(Orders.objects.filter(order__paid=False, user__id=uid).values())[0]['order_id']
+
+    def remove_from_cart(product_id, cart_id):
+        c = Contains.objects.filter(order_id=cart_id, product_id=product_id)
+        c.delete()
+
+    try:
+        o = get_active_cart(me.id)
+        remove_from_cart(id, o)
+    except Exception, e:
+        return JsonResponse({'status': 'bad', 'message': 'You have no active carts!', 'e': str(e)})
+
+    return JsonResponse({'status': 'good'})
 
 # Update the active user's active cart's information, potentially including its quantity
 @require_http_methods(["POST"])
