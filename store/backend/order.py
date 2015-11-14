@@ -195,10 +195,15 @@ def checkout(request):
     me = get_my_account(request)
 
     def get_active_cart(uid):
-        return Orders.objects.get(order__paid=False, user__id=uid)
+        return Orders.objects.get(order__paid=False, user__id=uid).order
 
-    o = get_active_cart(me.id)
-    return JsonResponse({'val': o.id}, safe=False)
+    try:
+        o = get_active_cart(me.id)
+        o.paid = True
+        o.save()
+        return STATUS_GOOD
+    except Exception, e:
+        return JsonResponse({'status': 'bad', 'message': 'Could not checkout'})
 
 # Adds an item to the specified cart
 # May only be used by staff members
