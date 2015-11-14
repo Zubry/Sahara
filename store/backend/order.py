@@ -87,8 +87,43 @@ def get_page(request, page):
 # Gets the active user's active cart
 # The cart should be sortable on the server
 def get(request):
+    if not is_authenticated(request):
+        return NO_ACTIVE_SESSION
 
-    return 0
+    me = get_my_account(request)
+
+    def get_active_cart(uid):
+        return Orders.objects.get(order__paid=False, user__id=uid).order
+
+    def get_products_in_cart(cart_id):
+        c = Contains.objects.filter(order_id=cart_id).values('order__date', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
+
+        products = []
+
+        for product in c:
+            products.append({
+                'product_name': product['product__name'],
+                'product_description': product['product__description'],
+                'product_stock_quantity': product['product__stock_quantity'],
+                'product_price': product['product__price'],
+                'product_active': product['product__active'],
+                'product_quantity': product['quantity'],
+            })
+
+        return products
+
+    try:
+        o = get_active_cart(me.id)
+        return JsonResponse({'status': 'good', 'data': {
+            'products': get_products_in_cart(o.id),
+            'date': o.date
+        }})
+    except Exception, e:
+        # In all likelihood, this just means they have no active cart
+        return JsonResponse({'status': 'good', 'data': {
+            'products': []
+        }})
+
 
 # Gets all orders
 # Should return information about the orderer, the order, and the products
