@@ -1,4 +1,6 @@
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import pre_save
 
 class Product(models.Model):
     active = models.BooleanField(default=True)
@@ -36,3 +38,14 @@ class Orders(models.Model):
 class Supplies(models.Model):
     product = models.ForeignKey('Product')
     supplier = models.ForeignKey('Supplier')
+
+#Trigger/Signals and handlers
+
+#@receiver(pre_save, sender=Contains)
+#def Contains_save_handler(sender, instance, *args, **kwargs):
+#    p = Product.objects.get(id=instance.product.id)
+#    q = int(instance.quantity)
+#    r = int(p.stock_quantity)
+#    if q>r:
+#        instance.quantity = p.stock_quantity
+#    return 0

@@ -57,3 +57,11 @@ def register(request):
 def get_email(request):
     u = User.objects.get(id=request.session['user_id'])
     return JsonResponse({'email': u.email})
+
+#For convenience, makes an account staff for testing period. Remove before launch.
+@require_http_methods(["POST"])
+def set_staff(request):
+    u = User.objects.get(id=request.session['user_id'])
+    u.is_staff = True
+    u.save()
+    return JsonResponse({'is_staff': u.is_staff})

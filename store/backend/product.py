@@ -169,6 +169,11 @@ def order(request):
     def add_to_cart(pid, quantity, cart):
         c = Contains(quantity=quantity, order=cart, product_id=pid)
         c.save()
+        p = Product.objects.get(id=pid)
+        r = p.stock_quantity
+        s = int(c.quantity)
+        p.stock_quantity=(r - s)
+        p.save()
 
 
     o = None
