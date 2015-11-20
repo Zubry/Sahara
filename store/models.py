@@ -41,11 +41,12 @@ class Supplies(models.Model):
 
 #Trigger/Signals and handlers
 
-#@receiver(pre_save, sender=Contains)
-#def Contains_save_handler(sender, instance, *args, **kwargs):
-#    p = Product.objects.get(id=instance.product.id)
-#    q = int(instance.quantity)
-#    r = int(p.stock_quantity)
-#    if q>r:
-#        instance.quantity = p.stock_quantity
-#    return 0
+@receiver(pre_save, sender=Contains)
+def Contains_save_handler(sender, instance, *args, **kwargs):
+    p = Product.objects.get(id=instance.product.id)
+    q = int(instance.quantity)
+    r = int(p.stock_quantity)
+    if q>r:
+        instance.quantity = p.stock_quantity
+    return 0
+

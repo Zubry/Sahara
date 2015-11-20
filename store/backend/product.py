@@ -5,6 +5,7 @@ from django.views.decorators.http import require_http_methods
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
+from datetime import datetime, timedelta
 
 from store.models import User, Supplier, Orders, Supplies, Product, Contains, Order
 
@@ -99,10 +100,15 @@ def remove(request):
         return JsonResponse({'status': 'bad', 'message': 'No specified product'})
 
     if is_authenticated(request) and is_staff(request):
+        last_month = datetime.today() - timedelta(days=30)
         try:
-            p = Product.objects.get(id=id)
-            p.delete()
-            return STATUS_GOOD
+            p = Product.objects.get(id=id)       
+            o = Order.objects.filter(date__gt=last_month)
+            if not Contains.objects.filter(product=p, order=o).exists():
+                p.delete()
+                return STATUS_GOOD
+            else:
+                return JsonResponse({'status': 'bad', 'message': 'Product ordered within the last month'})
         except Exception:
             return JsonResponse({'status': 'bad', 'message': 'Product does not exist'})
     else:
