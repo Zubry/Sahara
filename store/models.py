@@ -1,6 +1,9 @@
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
+from django.db.models.signals import post_save
+from django.core.mail import send_mail
+from django.core.mail import send_mass_mail
 
 class Product(models.Model):
     active = models.BooleanField(default=True)
@@ -15,6 +18,8 @@ class User(models.Model):
     password = models.CharField(max_length=60)
     email = models.CharField(max_length=320, unique=True)
     is_staff = models.BooleanField(default=False)
+    def __str__(self):
+        return self.name
 
 class Supplier(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -50,3 +55,12 @@ def Contains_save_handler(sender, instance, *args, **kwargs):
         instance.quantity = p.stock_quantity
     return 0
 
+@receiver(post_save, sender=Product)
+def Low_stock_notification(sender, instance, *args, **kwargs):
+    u = User.objects.filter(is_staff=True).values_list('email', flat=True)
+    newlist = [t.encode('utf8') for t in u]
+    s = int(instance.stock_quantity)
+    if s < 10:
+        for z in newlist:
+            send_mail('Sahara Automated Alert: Product low on stock', ''.join((instance.name, ' is low on stock')), 'SaharaAutoEmailer@yahoo.com', [z])
+    return 0;
