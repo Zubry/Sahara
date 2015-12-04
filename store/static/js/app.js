@@ -22,6 +22,26 @@
         'controller': 'ProfileController',
         'controllerAs': 'profile'
       })
+      .when('/products/', {
+        'templateUrl': '/static/templates/products.html',
+        'controller': 'LoginController',
+        'controllerAs': 'login'
+      })
+      .when('/product/', {
+        'templateUrl': '/static/templates/product.html',
+        'controller': 'LoginController',
+        'controllerAs': 'login'
+      })
+      .when('/staff/', {
+        'templateUrl': '/static/templates/main.html',
+        'controller': 'LoginController',
+        'controllerAs': 'login'
+      })
+      .when('/cart/', {
+        'templateUrl': '/static/templates/main.html',
+        'controller': 'LoginController',
+        'controllerAs': 'login'
+      })
       .when('/', {
         'templateUrl': '/static/templates/main.html',
         'controller': 'LoginController',
