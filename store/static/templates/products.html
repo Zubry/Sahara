@@ -1,22 +1,46 @@
 <div class="add-vertical-spacing"></div>
 <div class="container">
   <div class="row">
-    <form>
+    <form ng-submit="products.search()">
       <div class="form-group has-feedback">
         <div class="input-group input-group-sm">
           <span class="input-group-addon" aria-hidden="true">Product Search</span>
-          <input type=text class="form-control" placeholder="Search for a product">
+          <input type=text class="form-control" placeholder="Search for a product" ng-model="products.query">
           <span class="input-group-btn">
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sort by <span class="caret"></span></button>
             <ul class="dropdown-menu">
-              <li><a href="javascript:void;">Product name: A to Z</a></li>
-              <li><a href="javascript:void;">Price: lowest to highest</a></li>
-              <li><a href="javascript:void;">Price: highest to lowest</a></li>
+              <li><a href="javascript:void;" ng-click="products.setSortMethod('n')"><span class="glyphicon glyphicon-sort-by-alphabet" aria-hidden="true"></span> Product name: A to Z</a></li>
+              <li><a href="javascript:void;" ng-click="products.setSortMethod('p')"><span class="glyphicon glyphicon-sort-by-order" aria-hidden="true"></span> Price: lowest to highest</a></li>
+              <li><a href="javascript:void;" ng-click="products.setSortMethod('-p')"><span class="glyphicon glyphicon-sort-by-order-alt" aria-hidden="true"></span> Price: highest to lowest</a></li>
             </ul>
-            <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+            <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
           </span>
         </div>
       </div>
     </form>
+  </div>
+</div>
+<hr>
+<div class="container">
+  <div class="row">
+    <div class="col-md-4 col-sm-12" ng-repeat="product in products.products">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{product.name}}</h3>
+        </div>
+        <div class="panel-body">
+          <dl class="dl-horizontal">
+            <dt>Description: </dt>
+            <dd>{{product.description}}</dd>
+            <dt>Price: </dt>
+            <dd>{{product.price / 100 | currency:"$":2}}</dd>
+          </dl>
+
+          <div class="text-center">
+            <button type="button" class="btn btn-primary" ng-href="/product/{{product.id}}/">View Product <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
