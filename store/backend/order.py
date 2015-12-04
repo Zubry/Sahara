@@ -160,7 +160,34 @@ def get(request):
 # Gets all orders
 # Should return information about the orderer, the order, and the products
 def get_all(request):
-    return 0
+    if not is_authenticated(request):
+        return NO_ACTIVE_SESSION
+    if not is_staff(request):
+        return PERMISSIONS
+    o = Orders.objects.all()
+    output = []
+    if not o.exists():
+        return JsonResponse({'status': 'bad', 'message': 'No orders'})
+    try:
+        for order in o:
+            c = Contains.objects.filter(order=order.order).values('order__date', 'order__paid', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
+            p = Orders.objects.filter(user=order.user).values('user__email').distinct()
+            for person in p:
+                output.append({'user__email': person['user__email']})
+                for product in c:
+                    output.append({'product_name': product['product__name'],
+                    'product_description': product['product__description'],
+                    'product_stock_quantity': product['product__stock_quantity'],
+                    'product_price': product['product__price'],
+                    'product_active': product['product__active'],
+                    'product_quantity': product['quantity'],
+                    'order__date': product['order__date'],
+                    'order__paid': product['order__paid'],
+                    })
+
+    except Exception:
+        return JsonResponse({'status': 'bad', 'message': 'Undefined Error'})
+    return JsonResponse({'status': 'good', 'data': output})
 
 # Adds an item to the active user's active cart
 # If there is no active cart, create one and add the item to it
