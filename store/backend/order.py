@@ -74,9 +74,38 @@ def get_by_id(request, cart_id):
 # May only be used by staff members
 # Results must be sortable on the server
 @require_http_methods(["POST"])
-def search(request, page):
+def search(request):
+    if not is_authenticated(request):
+        return NO_ACTIVE_SESSION
+    if not is_staff(request):
+        return PERMISSIONS
 
-    return 0
+    email = request.POST.get("email")
+    p = User.objects.get(email=email)
+    o = Orders.objects.filter(user=p)
+
+    orders = []
+    if o.exists():
+        try:
+            for order in o:
+                c = Contains.objects.filter(order=order.id).values('order__date', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
+                products = []
+                orders.append({'order_id':order.id})
+                for product in c:
+                    products.append({'product_name': product['product__name'],
+                        'product_description': product['product__description'],
+                        'product_stock_quantity': product['product__stock_quantity'],
+                        'product_price': product['product__price'],
+                        'product_active': product['product__active'],
+                        'product_quantity': product['quantity'],})
+                orders.append({'products': products})
+
+        except Exception:
+            return JsonResponse({'status': 'bad', 'message': 'Undefined Error'})
+
+        return JsonResponse({'status': 'good', 'data': orders})
+    else:
+        return JsonResponse({'status': 'bad', 'message': 'No orders for this user'})
 
 # Gets the specified page of results
 # See: get_all
