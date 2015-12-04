@@ -5,6 +5,7 @@ from django.views.decorators.http import require_http_methods
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
+from datetime import datetime, timedelta
 
 from store.models import User, Supplier, Orders, Supplies, Product, Contains, Order
 
@@ -99,10 +100,15 @@ def remove(request):
         return JsonResponse({'status': 'bad', 'message': 'No specified product'})
 
     if is_authenticated(request) and is_staff(request):
+        last_month = datetime.today() - timedelta(days=30)
         try:
-            p = Product.objects.get(id=id)
-            p.delete()
-            return STATUS_GOOD
+            p = Product.objects.get(id=id)       
+            o = Order.objects.filter(date__gt=last_month)
+            if not Contains.objects.filter(product=p, order=o).exists():
+                p.delete()
+                return STATUS_GOOD
+            else:
+                return JsonResponse({'status': 'bad', 'message': 'Product ordered within the last month'})
         except Exception:
             return JsonResponse({'status': 'bad', 'message': 'Product does not exist'})
     else:
@@ -169,6 +175,11 @@ def order(request):
     def add_to_cart(pid, quantity, cart):
         c = Contains(quantity=quantity, order=cart, product_id=pid)
         c.save()
+        p = Product.objects.get(id=pid)
+        r = p.stock_quantity
+        s = int(c.quantity)
+        p.stock_quantity=(r - s)
+        p.save()
 
 
     o = None
@@ -185,15 +196,40 @@ def order(request):
 # Activates a product
 # May only be used by staff members
 def activate(request):
+    id = request.POST.get('id')
 
-    return 0
+    if 'id' not in request.POST or id == '':
+        return JsonResponse({'status': 'bad', 'message': 'No specified product'})
+    if is_authenticated(request) and is_staff(request):
+        try:
+            p = Product.objects.get(id=id)
+            p.active = True
+            p.save()
+            return JsonResponse({'status': 'good', 'message': 'Product activated'})
+        except Exception, e:
+            return JsonResponse({'status': 'bad', 'message': str(e)})
+    else:
+        return NO_ACTIVE_SESSION
 
 @require_http_methods(["POST"])
 # Deactivates a product
 # May only be used by staff members
 def deactivate(request):
+    id = request.POST.get('id')
 
-    return 0
+    if 'id' not in request.POST or id == '':
+        return JsonResponse({'status': 'bad', 'message': 'No specified product'})
+    if is_authenticated(request) and is_staff(request):
+        try:
+            p = Product.objects.get(id=id)
+            p.active = False
+            p.save()
+            return JsonResponse({'status': 'good', 'message': 'Product deactivated'})
+        except Exception:
+            return JsonResponse({'status': 'bad', 'message': 'Product failed to deactivate'})
+
+    else:
+        return NO_ACTIVE_SESSION
 
 @require_http_methods(["POST"])
 # Establishes a supplier of a product

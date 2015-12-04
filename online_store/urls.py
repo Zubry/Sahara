@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^api/auth/register/$', auth.register),
     url(r'^api/auth/login/$', auth.login),
     url(r'^api/auth/logout/$', auth.logout),
+    url(r'^api/auth/set_staff/$', auth.set_staff),
 
     # User
     url(r'^api/user/me/$', user.me),
@@ -58,9 +59,9 @@ urlpatterns = [
     url(r'^api/product/order/$', product.order),
     url(r'^api/product/supply/$', product.supply),
     url(r'^api/product/(.*)/$', product.get),
-    url(r'^api/product/(.*)/activate/$', product.activate),
-    url(r'^api/product/(.*)/deactivate/$', product.deactivate),
 
+    url(r'^api/products/activate/$', product.activate),
+    url(r'^api/products/deactivate/$', product.deactivate),
     url(r'^api/products/search/$', product.search),
     url(r'^api/products/(.*)/$', product.get_page),
     url(r'^api/products/$', product.get_all),
