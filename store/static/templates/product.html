@@ -1,0 +1,111 @@
+<div class="add-vertical-spacing"></div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <h2 class="text-center">{{product.name}}</h2>
+      <table class="table">
+        <tr>
+          <td class="width-50">
+            <label for="name">Product name</label>
+          </td>
+          <td class="width-50">
+            <div ng-hide="profile.staff">{{product.name}}</div>
+            <div class="input-group" ng-show="profile.staff">
+              <input type="text" class="form-control" id="name" ng-model="product.name">
+              <div class="input-group-addon pointer" ng-click="update_name()"><span class="glyphicon glyphicon-floppy-save text-primary" aria-hidden="true"></span></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="width-50">
+            <label for="description">Product description</label>
+          </td>
+          <td class="width-50">
+            <div ng-hide="profile.staff">{{product.description}}</div>
+            <div class="input-group" ng-show="profile.staff">
+              <input type="text" class="form-control" id="description" ng-model="product.description">
+              <div class="input-group-addon pointer" ng-click="update_description()"><span class="glyphicon glyphicon-floppy-save text-primary" aria-hidden="true"></span></div>
+            </div>
+          </td>
+        </tr>
+        <tr ng-show="profile.staff">
+          <td class="width-50">
+            <label for="stock_quantity">Product stock quantity</label>
+          </td>
+          <td class="width-50">
+            <div class="input-group" ng-show="profile.staff">
+              <input type="number" class="form-control" id="stock_quantity" ng-model="product.stock_quantity">
+              <div class="input-group-addon pointer" ng-click="update_stock_quantity()"><span class="glyphicon glyphicon-floppy-save text-primary" aria-hidden="true"></span></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="width-50">
+            <label for="price">Product price</label>
+          </td>
+          <td class="width-50">
+            <div ng-hide="profile.staff">{{product.price / 100 | currency:"$":2}}</div>
+            <div class="input-group" ng-show="profile.staff">
+              <input type="number" class="form-control" id="price" ng-model="product.price" step="100">
+              <div class="input-group-addon pointer" ng-click="update_price()"><span class="glyphicon glyphicon-floppy-save text-primary" aria-hidden="true"></span></div>
+            </div>
+          </td>
+        </tr>
+        <tr ng-show="profile.staff">
+          <td class="width-50">
+            <label for="delete">Remove this item (cannot be undone)</label>
+          </td>
+          <td class="width-50">
+            <div class="input-group">
+              <button type="button" class="btn btn-danger" ng-click="delete_item()">Remove</button>
+            </div>
+          </td>
+        </tr>
+        <tr ng-show="profile.staff && !product.active">
+          <td class="width-50">
+            <label for="activate">Activate this item</label>
+          </td>
+          <td class="width-50">
+            <div class="input-group">
+              <button type="button" class="btn btn-warning" ng-click="activate()">Activate</button>
+            </div>
+          </td>
+        </tr>
+        <tr ng-show="profile.staff && product.active">
+          <td class="width-50">
+            <label for="deactivate">Dectivate this item</label>
+          </td>
+          <td class="width-50">
+            <div class="input-group">
+              <button type="button" class="btn btn-warning" ng-click="deactivate()">Deactivate</button>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <hr class="large">
+        <div class="input-group input-group-lg col-lg-4 col-lg-offset-4" ng-show="profile.email">
+          <input type="number" class="form-control" id="quantity" ng-model="product.quantity" min="0">
+          <div class="input-group-addon pointer" ng-click="order()">Order <span class="glyphicon glyphicon-shopping-cart text-primary" aria-hidden="true"></span></div>
+        </div>
+      <hr class="large">
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .width-50 {
+    width:50%;
+  }
+
+  .pointer {
+    cursor: pointer;
+    transition: .3s;
+  }
+
+  .pointer:hover>span {
+    color: #2b2b2b;
+    transition: .3s;
+  }
+</style>

@@ -32,7 +32,7 @@ def get_by_id(request, cart_id):
     if not is_staff(request):
         return PERMISSIONS
 
-    c = Contains.objects.filter(order_id=cart_id).values('order__date', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
+    c = Contains.objects.filter(order_id=cart_id).values('id', 'order__date', 'product__id', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
     o = Orders.objects.filter(order_id=cart_id).values('user__address', 'user__name', 'user__email', 'user_id', 'order__date', 'order__paid')
 
     products = []
@@ -45,12 +45,14 @@ def get_by_id(request, cart_id):
     try:
         for product in c:
             products.append({
+                'order_id': product['id'],
                 'product_name': product['product__name'],
                 'product_description': product['product__description'],
                 'product_stock_quantity': product['product__stock_quantity'],
                 'product_price': product['product__price'],
                 'product_active': product['product__active'],
                 'product_quantity': product['quantity'],
+                'product_id': product['product__id'],
             })
 
         return JsonResponse({
@@ -88,11 +90,13 @@ def search(request):
     if o.exists():
         try:
             for order in o:
-                c = Contains.objects.filter(order=order.id).values('order__date', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
+                c = Contains.objects.filter(order=order.id).values('id', 'order__date', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
                 products = []
-                orders.append({'order_id':order.id})
+                orders.append({'order_id':order.order_id})
                 for product in c:
-                    products.append({'product_name': product['product__name'],
+                    products.append({
+                        'order_id': product['id'],
+                        'product_name': product['product__name'],
                         'product_description': product['product__description'],
                         'product_stock_quantity': product['product__stock_quantity'],
                         'product_price': product['product__price'],
@@ -127,12 +131,13 @@ def get(request):
 
     def get_products_in_cart(cart_id):
         # Django makes it really, really, really difficult to do something like SELECT SUM(price * quantity) without interacting with raw SQL, which you're really not supposed to do. Fortunately, it's trivial to do with JavaScript on the client, and we don't expect there to be enough items in a cart for it to create a memory/processing power issue
-        c = Contains.objects.filter(order_id=cart_id).values('order__date', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
+        c = Contains.objects.filter(order_id=cart_id).values('id', 'order__date', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
 
         products = []
 
         for product in c:
             products.append({
+                'order_id': product['id'],
                 'product_name': product['product__name'],
                 'product_description': product['product__description'],
                 'product_stock_quantity': product['product__stock_quantity'],
@@ -170,19 +175,21 @@ def get_all(request):
         return JsonResponse({'status': 'bad', 'message': 'No orders'})
     try:
         for order in o:
-            c = Contains.objects.filter(order=order.order).values('order__date', 'order__paid', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
+            c = Contains.objects.filter(order=order.order).values('id', 'order__date', 'order__paid', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
             p = Orders.objects.filter(user=order.user).values('user__email').distinct()
             for person in p:
                 output.append({'user__email': person['user__email']})
                 for product in c:
-                    output.append({'product_name': product['product__name'],
-                    'product_description': product['product__description'],
-                    'product_stock_quantity': product['product__stock_quantity'],
-                    'product_price': product['product__price'],
-                    'product_active': product['product__active'],
-                    'product_quantity': product['quantity'],
-                    'order__date': product['order__date'],
-                    'order__paid': product['order__paid'],
+                    output.append({
+                        'order_id': product['id'],
+                        'product_name': product['product__name'],
+                        'product_description': product['product__description'],
+                        'product_stock_quantity': product['product__stock_quantity'],
+                        'product_price': product['product__price'],
+                        'product_active': product['product__active'],
+                        'product_quantity': product['quantity'],
+                        'order__date': product['order__date'],
+                        'order__paid': product['order__paid'],
                     })
 
     except Exception:
@@ -251,7 +258,7 @@ def remove_item(request):
         return list(Orders.objects.filter(order__paid=False, user__id=uid).values())[0]['order_id']
 
     def remove_from_cart(product_id, cart_id):
-        c = Contains.objects.filter(order_id=cart_id, product_id=product_id)
+        c = Contains.objects.filter(order_id=cart_id, id=id)
         c.delete()
 
     try:
@@ -271,6 +278,12 @@ def clear(request):
     me = get_my_account(request)
 
     def get_active_cart(uid):
+        os = Orders.objects.filter(order__paid=False, user__id=uid)
+
+        for o in os:
+            o.order__paid = True
+            o.save()
+
         return list(Orders.objects.filter(order__paid=False, user__id=uid).values())[0]['order_id']
 
     def clear_cart(cart_id):
@@ -282,7 +295,7 @@ def clear(request):
         clear_cart(o)
         return STATUS_GOOD
     except Exception, e:
-        return JsonResponse({'status': 'bad', 'message': 'Could not clear cart'})
+        return JsonResponse({'status': 'bad', 'message': str(e)})
 
 # Mark the active user's active cart as paid (inactive)
 @require_http_methods(["POST"])
@@ -345,7 +358,7 @@ def add_item_by_id(request, user_id):
 # Removes an item from the specified cart
 # May only be used by staff members
 @require_http_methods(["POST"])
-def remove_item_by_id(request, user_id):
+def remove_item_by_id(request, cart_id):
     id = request.POST.get('id')
 
     if 'id' not in request.POST or id == '':
@@ -357,16 +370,12 @@ def remove_item_by_id(request, user_id):
     if not is_staff(request):
         return PERMISSIONS
 
-    def get_active_cart(uid):
-        return list(Orders.objects.filter(order__paid=False, user__id=uid).values())[0]['order_id']
-
-    def remove_from_cart(product_id, cart_id):
-        c = Contains.objects.filter(order_id=cart_id, product_id=product_id)
+    def remove_from_cart(id, cart_id):
+        c = Contains.objects.filter(order_id=cart_id, id=id)
         c.delete()
 
     try:
-        o = get_active_cart(user_id)
-        remove_from_cart(id, o)
+        remove_from_cart(id, cart_id)
     except Exception, e:
         return JsonResponse({'status': 'bad', 'message': 'User has no active carts!'})
 
@@ -389,8 +398,8 @@ def update_item_by_id(request, user_id):
     def get_active_cart(uid):
         return list(Orders.objects.filter(order__paid=False, user__id=uid).values())[0]['order_id']
 
-    def update_cart(cart_id, product_id, quantity):
-        c = Contains.objects.filter(order_id=cart_id, product__id=product_id)
+    def update_cart(cart_id, id, quantity):
+        c = Contains.objects.get(order_id=cart_id, id=id)
         c.quantity = quantity
         c.save()
 
@@ -398,20 +407,26 @@ def update_item_by_id(request, user_id):
         o = get_active_cart(user_id)
         update_cart(o, id, quantity)
         return STATUS_GOOD
-    except:
+    except Exception, e:
         return JsonResponse({'status': 'bad', 'message': 'Could not update cart'})
 
 # Clear a specified cart
 # May only be used by staff members
 @require_http_methods(["POST"])
-def clear_by_id(request, user_id):
+def clear_by_id(request, cart_id):
     if not is_authenticated(request):
         return NO_ACTIVE_SESSION
 
     if not is_staff(request):
         return PERMISSIONS
 
-    def get_active_cart(uid):
+    def get_active_cart(id):
+        os = Orders.objects.filter(order__paid=False, id=id)
+
+        for o in os:
+            o.order__paid = True
+            o.save()
+
         return list(Orders.objects.filter(order__paid=False, user__id=uid).values())[0]['order_id']
 
     def clear_cart(cart_id):
@@ -419,8 +434,8 @@ def clear_by_id(request, user_id):
         c.delete()
 
     try:
-        o = get_active_cart(user_id)
-        clear_cart(o)
+        get_active_cart(cart_id)
+        clear_cart(cart_id)
         return STATUS_GOOD
     except Exception, e:
         return JsonResponse({'status': 'bad', 'message': 'Could not clear cart'})

@@ -59,8 +59,8 @@ urlpatterns = [
     url(r'^api/product/order/$', product.order),
     url(r'^api/product/supply/$', product.supply),
     url(r'^api/product/(.*)/$', product.get),
-    url(r'^api/product/activate/$', product.activate),
-    url(r'^api/product/deactivate/$', product.deactivate),
+    url(r'^api/products/activate/$', product.activate),
+    url(r'^api/products/deactivate/$', product.deactivate),
 
     url(r'^api/products/search/$', product.search),
     url(r'^api/products/(.*)/$', product.get_page),
@@ -72,11 +72,11 @@ urlpatterns = [
     url(r'^api/order/clear/$', order.clear),
     url(r'^api/order/checkout/$', order.checkout),
 
-    url(r'^api/order/(.*)/$', order.get_by_id),
     url(r'^api/order/(.*)/add-item/$', order.add_item_by_id),
     url(r'^api/order/(.*)/remove-item/$', order.remove_item_by_id),
-    url(r'^api/order/(.*)/update-item/$', order.update_item_by_id),
     url(r'^api/order/(.*)/clear/$', order.clear_by_id),
+    url(r'^api/order/(.*)/update-item/$', order.update_item_by_id),
+    url(r'^api/order/(.*)/$', order.get_by_id),
 
     url(r'^api/orders/search/$', order.search),
     url(r'^api/orders/$', order.get_all),

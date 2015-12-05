@@ -102,7 +102,7 @@ def remove(request):
     if is_authenticated(request) and is_staff(request):
         last_month = datetime.today() - timedelta(days=30)
         try:
-            p = Product.objects.get(id=id)       
+            p = Product.objects.get(id=id)
             o = Order.objects.filter(date__gt=last_month)
             if not Contains.objects.filter(product=p, order=o).exists():
                 p.delete()

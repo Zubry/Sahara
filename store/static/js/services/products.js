@@ -43,7 +43,7 @@
           .success(function(res){
             success(res);
           });
-      },
+      }
 
     };
   }

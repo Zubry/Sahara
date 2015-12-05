@@ -27,10 +27,10 @@
         'controller': 'ProductsController',
         'controllerAs': 'products'
       })
-      .when('/product/', {
+      .when('/product/:product_id/', {
         'templateUrl': '/static/templates/product.html',
-        'controller': 'LoginController',
-        'controllerAs': 'login'
+        'controller': 'ProductController',
+        'controllerAs': 'product'
       })
       .when('/staff/', {
         'templateUrl': '/static/templates/main.html',
@@ -38,9 +38,19 @@
         'controllerAs': 'login'
       })
       .when('/cart/', {
-        'templateUrl': '/static/templates/main.html',
-        'controller': 'LoginController',
-        'controllerAs': 'login'
+        'templateUrl': '/static/templates/cart.html',
+        'controller': 'OrderController',
+        'controllerAs': 'order'
+      })
+      .when('/carts/', {
+        'templateUrl': '/static/templates/cart.html',
+        'controller': 'StaffOrderController',
+        'controllerAs': 'order'
+      })
+      .when('/cart/:id/', {
+        'templateUrl': '/static/templates/staff-cart.html',
+        'controller': 'StaffOrderController',
+        'controllerAs': 'order'
       })
       .when('/', {
         'templateUrl': '/static/templates/main.html',
