@@ -43,7 +43,29 @@
           .success(function(res){
             success(res);
           });
-      }
+      },
+      'addProduct': function(productName, price, desc, stock_quantity, callback){
+        $http({
+          method: 'POST',
+          url: 'api/product/add/',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          transformRequest: function(obj) {
+            var str = [];
+            for(var p in obj)
+            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+            return str.join("&");
+          },
+          data: {
+            'name': productName,
+            'price': price,
+            'description': desc,
+            'stock_quantity': stock_quantity
+          }
+        })
+        .success(function(res){
+          callback(res);
+        });
+      },
 
     };
   }
