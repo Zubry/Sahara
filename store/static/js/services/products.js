@@ -44,7 +44,7 @@
             success(res);
           });
       },
-      'addProduct': function(productName, price, desc, stock_quantity, callback){
+      'addProduct': function(productName, price, description, stock_quantity, callback){
         $http({
           method: 'POST',
           url: 'api/product/add/',
@@ -58,7 +58,7 @@
           data: {
             'name': productName,
             'price': price,
-            'description': desc,
+            'description': description,
             'stock_quantity': stock_quantity
           }
         })

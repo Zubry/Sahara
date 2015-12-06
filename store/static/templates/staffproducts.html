@@ -1,22 +1,75 @@
 <div class="add-vertical-spacing"></div>
 <div class="container">
   <div class="row">
-    <form>
-      <div class="form-group has-feedback">
-        <div class="input-group input-group-sm">
-          <span class="input-group-addon" aria-hidden="true">Add a Product</span>
-          <input type=text class="form-control" placeholder="Product name here" ng-model="products.productName">
-          <input type=text class="form-control" placeholder="Product description here" ng-model="products.description">
-          <input type=text class="form-control" placeholder="Product price here" ng-model="products.price">
-          <input type=text class="form-control" placeholder="Product stock quantity here" ng-model="products.stock_quantity">
-          <span class="input-group-btn">
-            <button type="button" class="btn btn-primary" ng-click="products.addProduct()">Add Product <span class="caret"></span></button>
-          </span>
-        </div>
+    <div class="col-lg-12">
+      <h2 class="text-center">Add a product</h2>
+      <table class="table">
+        <tr>
+          <td class="width-50">
+            <label for="name">Product name</label>
+          </td>
+          <td class="width-50">
+            <div class="input-group">
+              <input type="text" class="form-control" id="name" ng-model="name">
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="width-50">
+            <label for="description">Product description</label>
+          </td>
+          <td class="width-50">
+            <div class="input-group">
+              <input type="text" class="form-control" id="description" ng-model="description">
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="width-50">
+            <label for="stock_quantity">Product stock quantity</label>
+          </td>
+          <td class="width-50">
+            <div class="input-group">
+              <input type="number" class="form-control" id="stock_quantity" ng-model="stock_quantity">
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="width-50">
+            <label for="price">Product price</label>
+          </td>
+          <td class="width-50">
+            <div class="input-group">
+              <input type="number" class="form-control" id="price" ng-model="price" step="100">
+            </div>
+          </td>
+        </tr>
+      </table>
+      <hr class="large">
+      <button class="btn button-primary center-block" ng-click="addProduct()">Add product <span class="glyphicon glyphicon-shopping-cart text-primary" aria-hidden="true"></span></button>
+      <hr class="large">
       </div>
-    </form>
+    </div>
   </div>
 </div>
+
+<style>
+  .width-50 {
+    width:50%;
+  }
+
+  .pointer {
+    cursor: pointer;
+    transition: .3s;
+  }
+
+  .pointer:hover>span {
+    color: #2b2b2b;
+    transition: .3s;
+  }
+</style>
+
+
 <!--
 <hr>
 <div class="container">

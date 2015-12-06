@@ -33,9 +33,9 @@
         'controllerAs': 'product'
       })
       .when('/staff/', {
-        'templateUrl': '/static/templates/main.html',
-        'controller': 'LoginController',
-        'controllerAs': 'login'
+        'templateUrl': '/static/templates/staffproducts.html',
+        'controller': 'AddingController',
+        'controllerAs': 'add'
       })
       .when('/cart/', {
         'templateUrl': '/static/templates/cart.html',

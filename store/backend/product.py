@@ -28,6 +28,12 @@ PERMISSIONS = JsonResponse({'status': 'bad', 'message': 'You do not have the req
 
 # Gets the product at the specified ID
 def get(request, id):
+    Supplier.objects.all().delete()
+    Orders.objects.all().delete()
+    Supplies.objects.all().delete()
+    Product.objects.all().delete()
+    Contains.objects.all().delete()
+    Order.objects.all().delete()
     p = Product.objects.filter(id=id).values('id', 'name', 'description', 'price', 'stock_quantity', 'active')
     return JsonResponse({'status': 'good', 'data': json.loads(json.dumps(list(p)))})
 
@@ -79,7 +85,7 @@ def add(request):
     name = request.POST.get('name')
     description = request.POST.get('description')
     price = request.POST.get('price')
-    active = request.POST.get('active')
+    active = True
     stock_quantity = request.POST.get('stock_quantity')
 
     if is_authenticated(request) and is_staff(request):

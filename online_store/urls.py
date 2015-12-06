@@ -1,5 +1,4 @@
 """online_store URL Configuration
-
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.8/topics/http/urls/
 Examples:
@@ -59,9 +58,9 @@ urlpatterns = [
     url(r'^api/product/order/$', product.order),
     url(r'^api/product/supply/$', product.supply),
     url(r'^api/product/(.*)/$', product.get),
+
     url(r'^api/products/activate/$', product.activate),
     url(r'^api/products/deactivate/$', product.deactivate),
-
     url(r'^api/products/search/$', product.search),
     url(r'^api/products/(.*)/$', product.get_page),
     url(r'^api/products/$', product.get_all),
@@ -74,13 +73,13 @@ urlpatterns = [
 
     url(r'^api/order/(.*)/add-item/$', order.add_item_by_id),
     url(r'^api/order/(.*)/remove-item/$', order.remove_item_by_id),
-    url(r'^api/order/(.*)/clear/$', order.clear_by_id),
     url(r'^api/order/(.*)/update-item/$', order.update_item_by_id),
+    url(r'^api/order/(.*)/clear/$', order.clear_by_id),
     url(r'^api/order/(.*)/$', order.get_by_id),
 
     url(r'^api/orders/search/$', order.search),
     url(r'^api/orders/$', order.get_all),
-    url(r'^api/orders/(.*)/$', order.get_page),
+    url(r'^api/orders/get-page/$', order.get_page),
 
     url(r'^api/order/$', order.get),
 

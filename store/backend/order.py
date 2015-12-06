@@ -114,9 +114,68 @@ def search(request):
 # Gets the specified page of results
 # See: get_all
 # May only be used by staff members
-def get_page(request, page):
+def get_page(request):
+    if not is_authenticated:
+        return NO_ACTIVE_SESSION
+    if not is_staff:
+        return PERMISSIONS
 
-    return 0
+    o = Orders.objects.all()
+    pageNum = request.POST.get("page")
+    #change back to 10 after testing
+    pageStart = ((int(pageNum)  - 1) * 10) + 1
+    orderNum = Order.objects.all().count()
+    if pageStart > orderNum:
+        return JsonResponse({'status': 'good', 'message': 'No results for this page'})
+    #return to + 9 after testing with + 1
+    pageEnd = pageStart + 9
+    if pageEnd > orderNum:
+        pageEnd = orderNum
+    if pageNum < 1:
+        return JsonResponse({'status': 'bad', 'message': 'Invalid page number'})
+
+    print(orderNum)
+    print(pageStart)
+    print(pageEnd)
+    output = []
+    if pageStart == orderNum:
+        try:
+            g = Order.objects.all()[pageStart-1]
+            c = Contains.objects.filter(order=g).values('order__date', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
+            p = Orders.objects.filter(order=g).values('user__address', 'user__name', 'user__email', 'user__id')
+            for order in p:
+                output.append({'user__email': order['user__email'], 'user__name': order['user__name'], 'user__address': order['user__address'], 'user__id': order['user__id']})
+            for product in c:
+                output.append({'product_name': product['product__name'],
+                            'product_description': product['product__description'],
+                            'product_stock_quantity': product['product__stock_quantity'],
+                            'product_price': product['product__price'],
+                            'product_active': product['product__active'],
+                            'product_quantity': product['quantity'],
+                            })
+        except Exception:
+            return JsonResponse({'status': 'bad', 'message': 'Index out of bounds'})
+    else:
+        try:
+            for i in range(pageStart,pageEnd):
+                if(i > orderNum):
+                    return JsonResponse({'status': 'good', 'data': output})
+                g = Order.objects.all()[i-1]
+                c = Contains.objects.filter(order=g).values('order__date', 'product__active', 'product__name', 'product__description', 'product__price', 'product__stock_quantity', 'quantity')
+                p = Orders.objects.filter(order=g).values('user__address', 'user__name', 'user__email', 'user__id')
+                for order in p:
+                    output.append({'user__email': order['user__email'], 'user__name': order['user__name'], 'user__address': order['user__address'], 'user__id': order['user__id']})
+                for product in c:
+                    output.append({'product_name': product['product__name'],
+                                'product_description': product['product__description'],
+                                'product_stock_quantity': product['product__stock_quantity'],
+                                'product_price': product['product__price'],
+                                'product_active': product['product__active'],
+                                'product_quantity': product['quantity'],
+                                })
+        except Exception:
+            return JsonResponse({'status': 'bad', 'message': 'Index out of bounds'})
+    return JsonResponse({'status': 'good', 'data': output})
 
 # Gets the active user's active cart
 # The cart should be sortable on the server

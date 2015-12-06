@@ -18,9 +18,13 @@
         profile.name = res.data.data.name;
         profile.email = res.data.data.email;
         profile.address = res.data.data.address;
+        if(profile.address === 'undefined'){
+          profile.address = '';
+        }
 
       }else{
         profile.error = 'Error loading profile information!';
+        $location.path('/login/');
       }
     });
 
@@ -93,7 +97,7 @@
 
       profile.password_loading = true;
 
-      UserService.update_password(profile.password, current_password, function(res){
+      UserService.update_password(current_password, profile.password, function(res){
         console.log(res);
         if(res.status === 'good'){
           alert('changed password');

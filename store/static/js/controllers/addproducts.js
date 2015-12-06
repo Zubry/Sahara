@@ -6,32 +6,27 @@ Controller for adding product to database
 
 	angular.module('app').controller('AddingController', AddingController);
 
-	AddingController.$inject = ['ProductsService', '$location'];
+	AddingController.$inject = ['ProductsService', '$location', '$scope'];
 
 	function AddingController(ProductsService, $location, $scope){
-		var products = this;
-		
-		products.products = undefined;
-		products.productName = "";
-		products.price = 0;
-		products.desc = "";
-		products.stock_quantity = 0;
-		
+		$scope.products = undefined;
+		$scope.name = "";
+		$scope.price = 0;
+		$scope.description = "";
+		$scope.stock_quantity = 0;
 
-		products.addProduct = function(name, description, price, stock_quantity){
-			products.name = name;
-			products.description = description;
-			products.price = price;
-			products.stock_quantity = stock_quantity;
-			ProductsService.addProduct(products.name, products.description, products.price, products.stock_quantity, function(res){
+
+		$scope.addProduct = function(){
+			console.log($scope.description);
+			ProductsService.addProduct($scope.name, $scope.price, $scope.description, $scope.stock_quantity, function(res){
 				console.log(res);
 				if(res.status === 'good'){
-					products.products = res.data;
+					$location.path('/products/');
 				}else{
-					products.products = undefined;
+					$scope.products = undefined;
 				}
-			})
-		}
+			});
+		};
 	}
 
-})
+})();
